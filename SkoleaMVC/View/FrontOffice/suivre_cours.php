@@ -107,14 +107,24 @@ require __DIR__ . '/includes/header.php';
                 <?php if ($ressources !== []): ?>
                     <div style="margin-top:12px;">
                         <?php foreach ($ressources as $ressource): ?>
-                            <?php $href = strpos($ressource['contenu'], 'http') === 0 ? $ressource['contenu'] : '../../uploads/' . $ressource['contenu']; ?>
+                            <?php
+                            // Une ressource est soit un lien externe, soit un fichier televerse.
+                            // On ne propose "Consulter" que si le fichier existe encore.
+                            $estLien = strpos($ressource['contenu'], 'http') === 0;
+                            $href = $estLien ? $ressource['contenu'] : '../../uploads/' . $ressource['contenu'];
+                            $disponible = $estLien || is_file(__DIR__ . '/../../uploads/' . $ressource['contenu']);
+                            ?>
                             <div class="resource-row">
                                 <span class="resource-icon"><?= $ressource['type'] === 'video' ? '&#9654;' : ($ressource['type'] === 'quiz' ? '?' : '&#128196;') ?></span>
                                 <div class="spacer">
                                     <strong style="font-size:.88rem;"><?= e($ressource['titre']) ?></strong>
                                     <div class="text-soft" style="font-size:.78rem;"><?= e(type_ressource_label($ressource['type'])) ?></div>
                                 </div>
-                                <a href="<?= e($href) ?>" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Consulter</a>
+                                <?php if ($disponible): ?>
+                                    <a href="<?= e($href) ?>" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Consulter</a>
+                                <?php else: ?>
+                                    <span class="text-soft" style="font-size:.78rem;">Fichier indisponible</span>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
